@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Title>CamposDEV RabbitMQ Lib</Title>
+		<Company>Campos Dev</Company>
+		<Product>CamposDev.Framework</Product>
+		<Description>A simple lib for message processing using RabbitMQ</Description>
+		<PackageProjectUrl>https://camposdev.ind.br</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Version>1.0.1-debug</Version>
+    </PropertyGroup>
+    <ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+        <PackageReference Include="Dapper" Version="2.1.66" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.8" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />  <!-- se Postgres -->
+        <PackageReference Include="Npgsql" Version="9.0.3" />
+		<PackageReference Include="Serilog" Version="4.3.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    </ItemGroup>
+</Project>

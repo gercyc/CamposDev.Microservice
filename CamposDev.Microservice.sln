@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11104.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamposDev.Microservice.RabbitMq", "CamposDev.Microservice.RabbitMq\CamposDev.Microservice.RabbitMq.csproj", "{96CA29AB-47DD-3933-B7C3-70F7507FF5B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamposDev.Microservice.ExampleApp", "CamposDev.Microservice.ExampleApp\CamposDev.Microservice.ExampleApp.csproj", "{43BE83AA-F719-1CC2-2634-41E7C12EA104}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96CA29AB-47DD-3933-B7C3-70F7507FF5B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96CA29AB-47DD-3933-B7C3-70F7507FF5B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96CA29AB-47DD-3933-B7C3-70F7507FF5B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96CA29AB-47DD-3933-B7C3-70F7507FF5B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9DEFF455-06EA-4F13-A04C-D99EC938CF59}
+	EndGlobalSection
+EndGlobal
