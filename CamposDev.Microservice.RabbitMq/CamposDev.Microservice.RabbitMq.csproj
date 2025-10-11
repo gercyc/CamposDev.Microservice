@@ -11,7 +11,8 @@
 		<Description>A simple lib for message processing using RabbitMQ</Description>
 		<PackageProjectUrl>https://camposdev.ind.br</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.0.1-debug</Version>
+		<Version>1.0.3-debug</Version>
+		<RepositoryUrl>https://github.com/gercyc/CamposDev.Microservice</RepositoryUrl>
     </PropertyGroup>
     <ItemGroup>
 		<None Include="README.md" Pack="true" PackagePath="\" />
