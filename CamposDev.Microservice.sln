@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamposDev.Microservice.Rabb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamposDev.Microservice.ExampleApp", "CamposDev.Microservice.ExampleApp\CamposDev.Microservice.ExampleApp.csproj", "{43BE83AA-F719-1CC2-2634-41E7C12EA104}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamposDev.Mqtt", "CamposDev.Mqtt\CamposDev.Mqtt.csproj", "{C7A9DC1D-9A8E-6A2D-4D7A-11412A222081}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9133F757-7787-4C3A-B3B1-E3F9D402329D}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +28,10 @@ Global
 		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43BE83AA-F719-1CC2-2634-41E7C12EA104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A9DC1D-9A8E-6A2D-4D7A-11412A222081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A9DC1D-9A8E-6A2D-4D7A-11412A222081}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A9DC1D-9A8E-6A2D-4D7A-11412A222081}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A9DC1D-9A8E-6A2D-4D7A-11412A222081}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
