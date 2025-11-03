@@ -2,9 +2,8 @@ using CamposDev.Microservice.RabbitMq.Extensions;
 using CamposDev.Microservice.RabbitMq.Messaging;
 using CamposDev.Microservice.RabbitMq.Messaging.Services;
 using CamposDev.Microservice.RabbitMq.Persistence;
-using Demo.MicroserviceAspnet.EfContext;
-using Serilog;
 using System.Reflection;
+using CamposDev.Microservice.ExampleApp.EfContext;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -25,7 +24,7 @@ builder.Services.AddEventHandlersFrom(Assembly.GetExecutingAssembly());
 
 // Registro do serviço consumidor de tópicos RabbitMQ como hosted service
 // Este serviço irá escutar as filas e acionar os handlers apropriados
-builder.Services.AddHostedService<RabbitMqTopicConsumerService>();
+//builder.Services.AddHostedService<RabbitMqTopicConsumerService>();
 
 // Registro do serviço consumidor de filas RabbitMQ como hosted service
 // Este serviço irá escutar as filas e acionar os handlers apropriados

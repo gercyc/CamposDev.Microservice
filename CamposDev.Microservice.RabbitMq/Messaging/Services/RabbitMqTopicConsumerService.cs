@@ -23,7 +23,7 @@ public class RabbitMqTopicConsumerService(
     private IChannel? _channel;
 
     // flattened handler list: (HandlerType, PayloadType, Patterns)
-    private List<(Type HandlerType, Type PayloadType, IEnumerable<string> Patterns, string QueueName)> _handlers = new();
+    private List<(Type HandlerType, Type PayloadType, IEnumerable<string> Patterns, string QueueName, Dictionary<string, object?>? QueueArgs)> _handlers = new();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,27 +35,59 @@ public class RabbitMqTopicConsumerService(
             {
                 await EnsureConnected();
 
-                _channel ??= await _connection!.CreateChannelAsync();
+                _channel ??= await _connection!.CreateChannelAsync(cancellationToken: stoppingToken);
 
                 // ensure exchange exists (topic)
                 await _channel.ExchangeDeclareAsync(_rabbitMqSettings.ExchangeName, ExchangeType.Topic, durable: true, cancellationToken: stoppingToken);
+                await _channel.ExchangeDeclareAsync(_rabbitMqSettings.DeadLetterExchange, ExchangeType.Direct, durable: true, cancellationToken: stoppingToken);
 
                 // single queue that will receive all bindings from handlers
-                var topicQueue = _rabbitMqSettings.TopicConsumerQueueName ?? "__topic_consumer__";
+                var topicQueue = _rabbitMqSettings.TopicConsumerQueueName ?? "topic_consumer.queue";
+                var topicQueueDlq = _rabbitMqSettings.TopicConsumerDlqName ?? "topic_consumer.dlq";
+
+                var args = new Dictionary<string, object?>
+                {
+                    ["x-dead-letter-exchange"] = _rabbitMqSettings.DeadLetterExchange,
+                    ["x-dead-letter-routing-key"] = topicQueueDlq
+                };
 
                 // create queue (durable, shared)
-                await _channel.QueueDeclareAsync(topicQueue, durable: true, exclusive: false, autoDelete: false, arguments: null, cancellationToken: stoppingToken);
+                await _channel.QueueDeclareAsync(topicQueueDlq, durable: true, exclusive: false, autoDelete: false, arguments: null, cancellationToken: stoppingToken);
+                await _channel.QueueDeclareAsync(topicQueue, durable: true, exclusive: false, autoDelete: false, arguments: args, cancellationToken: stoppingToken);
 
                 // bind each pattern from every handler to this queue
                 var distinctPatternsWithQueue = _handlers
-                    .SelectMany(h => h.Patterns.Select(p => (Pattern: p, QueueName: h.QueueName)))
+                    .SelectMany(h => h.Patterns.Select(p => (Pattern: p, QueueName: h.QueueName, h.QueueArgs)))
                     .DistinctBy(x => (x.Pattern, x.QueueName))
                     .ToList();
 
-                foreach (var (pattern, queueName) in distinctPatternsWithQueue)
+                foreach (var (pattern, queueName, queueArgs) in distinctPatternsWithQueue)
                 {
                     // Binding to the single topicQueue; we also surface the handler queue name for logging or future use.
-                    await _channel.QueueBindAsync(queueName, _rabbitMqSettings.ExchangeName, pattern, cancellationToken: stoppingToken);
+                    var queueArgsVar = queueArgs;
+
+                    if (queueArgs is null)
+                    {
+                        queueArgsVar = new Dictionary<string, object?>
+                        {
+                            ["x-dead-letter-exchange"] = _rabbitMqSettings.DeadLetterExchange,
+                            ["x-dead-letter-routing-key"] = topicQueueDlq
+                        };
+                    }
+
+                    await _channel.QueueDeclareAsync(queueName.Replace("queue", "dlq"), durable: true, exclusive: false, autoDelete: false, arguments: null, cancellationToken: stoppingToken);
+                    await _channel.QueueDeclareAsync(queueName, durable: true, exclusive: false, autoDelete: false, arguments: queueArgsVar, cancellationToken: stoppingToken);
+                    await _channel.QueueBindAsync(queueName, _rabbitMqSettings.ExchangeName, pattern, null, cancellationToken: stoppingToken);
+                    
+                    var consumerQueue = new AsyncEventingBasicConsumer(_channel);
+                    consumerQueue.ReceivedAsync += OnReceivedAsync;
+
+                    await _channel.BasicConsumeAsync(
+                    queue: queueName,
+                    autoAck: false,
+                    consumer: consumerQueue,
+                    cancellationToken: stoppingToken);
+
                     logger.LogDebug("Bound pattern '{Pattern}' (handler queue: '{HandlerQueue}') to topic queue '{TopicQueue}'",
                         pattern, queueName, topicQueue);
                 }
@@ -63,14 +95,14 @@ public class RabbitMqTopicConsumerService(
                 // optional prefetch for the queue
                 await _channel.BasicQosAsync(0, 10, false, stoppingToken);
 
-                var consumer = new AsyncEventingBasicConsumer(_channel);
-                consumer.ReceivedAsync += OnReceivedAsync;
+                //var consumer = new AsyncEventingBasicConsumer(_channel);
+                //consumer.ReceivedAsync += OnReceivedAsync;
 
-                await _channel.BasicConsumeAsync(
-                    queue: topicQueue,
-                    autoAck: false,
-                    consumer: consumer,
-                    cancellationToken: stoppingToken);
+                //await _channel.BasicConsumeAsync(
+                //    queue: topicQueue,
+                //    autoAck: false,
+                //    consumer: consumer,
+                //    cancellationToken: stoppingToken);
 
                 logger.LogInformation("Listening to exchange '{ExchangeName}' on queue '{Queue}' (vhost: {VHost})", _rabbitMqSettings.ExchangeName, topicQueue, _rabbitMqSettings.VirtualHost);
 
@@ -96,7 +128,7 @@ public class RabbitMqTopicConsumerService(
         var handlers = scope.ServiceProvider.GetServices<IMessageHandler>().ToList();
 
         _handlers = handlers
-            .Select(h => (HandlerType: h.GetType(), PayloadType: h.PayloadType, Patterns: h.Patterns, h.QueueName))
+            .Select(h => (HandlerType: h.GetType(), PayloadType: h.PayloadType, Patterns: h.Patterns, h.QueueName, h.QueueArgs))
             .ToList();
     }
 
@@ -140,7 +172,7 @@ public class RabbitMqTopicConsumerService(
                 return;
             }
 
-            foreach (var (handlerType, payloadType, patterns, queueName) in targets)
+            foreach (var (handlerType, payloadType, patterns, queueName, queueArgs) in targets)
             {
                 using var scope = _serviceProvider.CreateScope();
                 var handler = scope.ServiceProvider.GetServices<IMessageHandler>()
@@ -177,8 +209,22 @@ public class RabbitMqTopicConsumerService(
     {
         if (_channel is not null)
         {
-            try { await _channel.CloseAsync(); } catch { }
-            try { await _channel.DisposeAsync(); } catch { }
+            try
+            {
+                await _channel.CloseAsync();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                await _channel.DisposeAsync();
+            }
+            catch
+            {
+            }
+
             _channel = null;
         }
 
@@ -186,13 +232,17 @@ public class RabbitMqTopicConsumerService(
         {
             if (_connection is not null) await _connection.CloseAsync();
         }
-        catch { }
+        catch
+        {
+        }
 
         try
         {
             _connection?.DisposeAsync();
         }
-        catch { }
+        catch
+        {
+        }
 
         _connection = null;
     }

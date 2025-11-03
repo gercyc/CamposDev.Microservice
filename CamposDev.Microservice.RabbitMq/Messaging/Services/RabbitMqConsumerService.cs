@@ -11,10 +11,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-public class RabbitMqConsumerService(
-    ILogger<RabbitMqConsumerService> logger,
-    IOptions<RabbitMqSettings> options,
-    IServiceProvider serviceProvider) : BackgroundService
+public class RabbitMqConsumerService(ILogger<RabbitMqConsumerService> logger, IOptions<RabbitMqSettings> options, IServiceProvider serviceProvider) : BackgroundService
 {
     private IConnection? _connection;
     private readonly RabbitMqSettings _rabbitMqSettings = options.Value;
@@ -35,6 +32,7 @@ public class RabbitMqConsumerService(
             {
                 await EnsureConnected();
                 var ch0 = await GetOrCreateChannelAsync("__bootstrap__");
+                await ch0.ExchangeDeclareAsync(_rabbitMqSettings.DeadLetterExchange, ExchangeType.Direct, durable: true, cancellationToken: stoppingToken);
                 await ch0.ExchangeDeclareAsync(_rabbitMqSettings.ExchangeName, ExchangeType.Topic, durable: true, cancellationToken: stoppingToken);
                 await ch0.CloseAsync(stoppingToken);
                 _channelsByQueue.Remove("__bootstrap__");

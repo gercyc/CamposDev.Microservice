@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Demo.MicroserviceAspnet.EfContext;
+namespace CamposDev.Microservice.ExampleApp.EfContext;
 
 public class Context(DbContextOptions<Context> options) : DbContext(options)
 {

@@ -1,9 +1,8 @@
 ﻿using CamposDev.Microservice.RabbitMq.Contracts;
 using CamposDev.Microservice.RabbitMq.Persistence;
 using Dapper;
-using Microsoft.EntityFrameworkCore;
 
-namespace Demo.MicroserviceAspnet.Repositories;
+namespace CamposDev.Microservice.ExampleApp.Repositories;
 
 public interface IClienteRepositoryDapper : IScopedService
 {

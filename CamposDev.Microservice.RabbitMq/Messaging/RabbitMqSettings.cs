@@ -13,4 +13,5 @@ public class RabbitMqSettings
 
     public string DeadLetterExchange => string.Concat(ExchangeName, ".dlx");
     public string DefaultDeadLetterQueueName { get; set; } = "default.dlq";
+    public string? TopicConsumerDlqName => TopicConsumerQueueName?.Replace("queue", "dlq") ?? "topic_consumer.dlq";
 }

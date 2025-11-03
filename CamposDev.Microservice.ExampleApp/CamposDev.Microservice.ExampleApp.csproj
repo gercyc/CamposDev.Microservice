@@ -10,9 +10,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CamposDev.Microservice.RabbitMq" VersionOverride="1.0.3"/>
+<!--		<PackageReference Include="CamposDev.Microservice.RabbitMq" VersionOverride="1.0.3"/>-->
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CamposDev.Microservice.RabbitMq\CamposDev.Microservice.RabbitMq.csproj" />
 	</ItemGroup>
 </Project>

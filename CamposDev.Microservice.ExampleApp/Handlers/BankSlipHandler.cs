@@ -1,26 +1,28 @@
-﻿using CamposDev.Microservice.RabbitMq.Messaging;
-using System.Text.Json;
+﻿using System.Text.Json;
+using CamposDev.Microservice.RabbitMq.Messaging;
 
-namespace Demo.MicroserviceAspnet.Handlers;
+namespace CamposDev.Microservice.ExampleApp.Handlers;
 
 public sealed class BankSlipHandler(ILogger<BankSlipHandler> logger) : MessageHandler<BankSlipDataMessage>
 {
-    public override string QueueName => "ticket.queue";
+    public override string QueueName => "homelab.queue";
+    //public override Dictionary<string, object?>? QueueArgs => new() { { "x-dead-letter-exchange", "homelab.dlq" } };
     public override Dictionary<string, object?>? QueueArgs { get; }
+
 
     public override IEnumerable<string> Patterns =>
     [
-        "ticket.cmd.create",
-        "ticket.evt.update"
+        "homelab.cmd.create-something",
+        "homelab.evt.update-something"
     ];
 
     public override async Task HandleAsync(RmqContext ctx, BankSlipDataMessage payload, CancellationToken ct)
     {
         var bankSlipData = payload.data;
-                
-        if (ctx.RoutingKey.EndsWith(".create"))
+
+        if (ctx.RoutingKey.Contains(".create"))
             logger.LogInformation("Creating ticket: {data}", JsonSerializer.Serialize(bankSlipData));
-        else if (ctx.RoutingKey.EndsWith(".update"))
+        else if (ctx.RoutingKey.Contains(".update"))
             logger.LogInformation("Updating ticket: {data}", JsonSerializer.Serialize(bankSlipData));
     }
 }
