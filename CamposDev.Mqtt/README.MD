@@ -108,6 +108,28 @@ var evento = new
 await _mqttService.PublishAsync("eventos/pedidos", JsonSerializer.Serialize(evento));
 ````
 
+### Mensagens Retidas
+
+Com `retain: true` o broker guarda a última mensagem do tópico e a entrega a quem assinar depois (útil para estado e para o MQTT Discovery do Home Assistant). A flag também é preservada nas mensagens persistidas offline.
+
+```csharp
+await _mqttService.PublishAsync("casa/sala/estado", "{\"luz\":true}", retain: true);
+```
+
+> Até a versão 1.0.1 o parâmetro `retain` era ignorado.
+
+### Assinando Tópicos
+
+`SubscribeAsync` aceita filtros com `+` (um nível) e `#` (o restante). A assinatura é refeita automaticamente a cada reconexão, e exceções do handler são logadas sem derrubar a conexão.
+
+```csharp
+await _mqttService.SubscribeAsync("casa/+/set", async (topic, payload) =>
+{
+    var comodo = topic.Split('/')[1];
+    await AplicarComandoAsync(comodo, payload);
+});
+```
+
 ## 🔧 Configurações Avançadas
 
 ### Propriedades do MqttBrokerSettings
@@ -119,6 +141,7 @@ await _mqttService.PublishAsync("eventos/pedidos", JsonSerializer.Serialize(even
 | `Topic` | `string` | Tópico padrão para publicação | - |
 | `RetryIntervalMinutes` | `int` | Intervalo entre tentativas de reconexão (minutos) | `5` |
 | `NormalIntervalSeconds` | `int` | Intervalo normal entre operações (segundos) | `30` |
+| `AvailabilityTopic` | `string?` | Tópico de disponibilidade: `online` (retido) a cada conexão e `offline` (retido) como Last Will se a conexão cair. Formato do `availability_topic` do Home Assistant | - |
 
 ### Exemplo de Configuração Avançada
 
